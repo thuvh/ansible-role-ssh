@@ -29,12 +29,19 @@
     mode: "0644"
 
 - name: authorized_keys init
-  set_fact: 
+  set_fact:
     ssh_authorized_keys: []
 
 - name: authorized_keys get keys
   set_fact:
-    ssh_authorized_keys: "{{ ssh_authorized_keys + lookup('url', 'https://gitlab.com/' + item + '.keys', headers={ 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36'}, wantlist=True) }}"
+    ssh_authorized_keys: >-
+      {{
+        ssh_authorized_keys + lookup(
+        'url',
+        'https://gitlab.com/' + item + '.keys',
+        headers={ 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36'},
+        wantlist=True)
+      }}
   with_items: "{{ ssh_gitlab_usernames }}"
 
 - name: authorized_keys collect all keys
@@ -46,4 +53,4 @@
     user: "{{ ansible_facts.user_id }}"
     state: present
     key: "{{ ssh_authorized_keys | join('\n') }}"
-    exclusive: yes
+    exclusive: "yes"
