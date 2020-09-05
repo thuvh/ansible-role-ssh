@@ -2,16 +2,20 @@
 - name: Converge
   hosts: all
   become: true
-
+  vars:
+    ssh_private_key_path: files/id_rsa
+    ssh_public_key_path: files/id_rsa.pub
+    ssh_gitlab_usernames:
+      - thuvh
+    ssh_public_keys:
+      - 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXe
+        vct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQ
+        PyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKc
+        F96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== insecure public key'
   pre_tasks:
     - name: Update apt cache.
       apt: update_cache=true cache_valid_time=600
       when: ansible_os_family == 'Debian'
-
-    - name: Clear out repo for Fedora.
-      set_fact:
-        redis_enablerepo: ""
-      when: ansible_distribution == 'Fedora'
 
   roles:
     - role: thuvh.ssh
