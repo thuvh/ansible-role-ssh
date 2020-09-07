@@ -1,36 +1,76 @@
 ---
+- name: check if user exists
+  getent:
+    database: passwd
+    key: '{{ ssh_username }}'
+    fail_key: no
+  when: ssh_username is defined
+
+- name: create user if user does not exist
+  user:
+    name: '{{ ssh_username }}'
+    groups: '{{ ssh_user_groups }}'
+    shell: /bin/bash
+    append: yes
+  when: ssh_username is defined and ssh_username in getent_passwd and getent_passwd['ssh_username'] is not defined
+  become: yes
+
+- name: set username if variable is not defined
+  set_fact:
+    ssh_username: '{{ ssh_username }}'
+  when: ssh_username is not defined
+
+- name: query user information
+  getent:
+    database: passwd
+    key: '{{ ssh_username }}'
+
+- name: set home directory for user
+  set_fact:
+    ssh_home: '{{ getent_passwd[ssh_username][-2] }}'
+
 - name: create dot ssh directory
   file:
-    path: "{{ ansible_facts.user_dir }}/.ssh"
-    owner: "{{ ansible_facts.user_id }}"
-    group: "{{ ansible_facts.user_id }}"
+    path: "{{ ssh_home }}/.ssh"
+    owner: "{{ ssh_username }}"
+    group: "{{ ssh_username }}"
     mode: '0700'
     state: directory
+  become: yes
+  become_user: '{{ ssh_username }}'
 
 - name: get content of ssh key (private and public)
   set_fact:
     ssh_private_key: "{{ lookup('file', ssh_private_key_path, wantlist=True) }}"
     ssh_public_key: "{{ lookup('file', ssh_public_key_path, wantlist=True) }}"
+  become: yes
+  become_user: '{{ ssh_username }}'
 
 - name: upload ssh private key
   template:
     src: "id_rsa.j2"
-    dest: "{{ ansible_facts.user_dir }}/.ssh/id_rsa"
-    owner: "{{ ansible_facts.user_id }}"
-    group: "{{ ansible_facts.user_id }}"
+    dest: "{{ ssh_home }}/.ssh/id_rsa"
+    owner: "{{ ssh_username }}"
+    group: "{{ ssh_username }}"
     mode: "0600"
+  become: yes
+  become_user: '{{ ssh_username }}'
 
 - name: upload ssh public key
   template:
     src: "id_rsa.pub.j2"
-    dest: "{{ ansible_facts.user_dir }}/.ssh/id_rsa.pub"
-    owner: "{{ ansible_facts.user_id }}"
-    group: "{{ ansible_facts.user_id }}"
+    dest: "{{ ssh_home }}/.ssh/id_rsa.pub"
+    owner: "{{ ssh_username }}"
+    group: "{{ ssh_username }}"
     mode: "0644"
+  become: yes
+  become_user: '{{ ssh_username }}'
 
 - name: authorized_keys init
   set_fact:
     ssh_authorized_keys: []
+  become: yes
+  become_user: '{{ ssh_username }}'
 
 - name: authorized_keys get keys
   set_fact:
@@ -44,14 +84,20 @@
       wantlist=True)
       }}
   with_items: "{{ ssh_gitlab_usernames }}"
+  become: yes
+  become_user: '{{ ssh_username }}'
 
 - name: authorized_keys collect all keys
   set_fact:
-    ssh_authorized_keys: "{{ ssh_authorized_keys + ssh_public_key }}"
+    ssh_authorized_keys: "{{ ssh_authorized_keys + ssh_manual_public_keys + ssh_public_key }}"
+  become: yes
+  become_user: '{{ ssh_username }}'
 
 - name: set authorized keys taken from variables
   authorized_key:
-    user: "{{ ansible_facts.user_id }}"
+    user: "{{ ssh_username }}"
     state: present
     key: "{{ ssh_authorized_keys | join('\n') }}"
     exclusive: "yes"
+  become: yes
+  become_user: '{{ ssh_username }}'
