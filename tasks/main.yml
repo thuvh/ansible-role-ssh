@@ -4,10 +4,10 @@
     path: "{{ ansible_facts.user_dir }}/.ssh"
     owner: "{{ ansible_facts.user_id }}"
     group: "{{ ansible_facts.user_id }}"
-    mode: "0750"
+    mode: '0700'
     state: directory
 
-- name: get content of shh key (private and public)
+- name: get content of ssh key (private and public)
   set_fact:
     ssh_private_key: "{{ lookup('file', ssh_private_key_path, wantlist=True) }}"
     ssh_public_key: "{{ lookup('file', ssh_public_key_path, wantlist=True) }}"
