@@ -1,0 +1,23 @@
+---
+- name: Create
+  hosts: all
+  become: true
+  pre_tasks:
+    - name: check if /tmp exists
+      stat:
+        path: /tmp
+      register: stat_tmp_result
+
+    - name: create directory /tmp
+      file:
+        path: /tmp
+        owner: root
+        group: root
+        mode: '0777'
+      when: not stat_tmp_result.stat.exists
+
+    - name: create ssh key pair
+      openssh_keypair:
+        path: /tmp/id_rsa
+        size: 2048
+        mode: '0644'

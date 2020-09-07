@@ -3,8 +3,8 @@
   hosts: all
   become: true
   vars:
-    ssh_private_key_path: files/id_rsa
-    ssh_public_key_path: files/id_rsa.pub
+    ssh_private_key_path: /tmp/id_rsa
+    ssh_public_key_path: /tmp/id_rsa.pub
     ssh_gitlab_usernames:
       - thuvh
     ssh_manual_public_keys:
