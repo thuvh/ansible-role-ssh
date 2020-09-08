@@ -39,13 +39,6 @@
   become: true
   become_user: '{{ ssh_username }}'
 
-- name: get content of ssh key (private and public)
-  set_fact:
-    ssh_private_key: "{{ lookup('file', ssh_private_key_path, wantlist=True) }}"
-    ssh_public_key: "{{ lookup('file', ssh_public_key_path, wantlist=True) }}"
-  become: true
-  become_user: '{{ ssh_username }}'
-
 - name: upload ssh private key
   template:
     src: "id_rsa.j2"
@@ -55,6 +48,11 @@
     mode: "0600"
   become: true
   become_user: '{{ ssh_username }}'
+  when: >
+    ssh_default_private_key is defined and
+    ssh_default_private_key | length > 0 and
+    ssh_default_public_key is defined and
+    ssh_default_public_key | length > 0
 
 - name: upload ssh public key
   template:
@@ -65,6 +63,11 @@
     mode: "0644"
   become: true
   become_user: '{{ ssh_username }}'
+  when: >
+    ssh_default_private_key is defined and
+    ssh_default_private_key | length > 0 and
+    ssh_default_public_key is defined and
+    ssh_default_public_key | length > 0
 
 - name: authorized_keys init
   set_fact:
@@ -89,9 +92,20 @@
 
 - name: authorized_keys collect all keys
   set_fact:
-    ssh_authorized_keys: "{{ ssh_authorized_keys + ssh_manual_public_keys + ssh_public_key }}"
+    ssh_authorized_keys: "{{ ssh_authorized_keys + ssh_manual_public_keys }}"
   become: true
   become_user: '{{ ssh_username }}'
+
+- name: authorized_keys collect default public key
+  set_fact:
+    ssh_authorized_keys: "{{ ssh_authorized_keys + [ ssh_default_public_key ] }}"
+  become: true
+  become_user: '{{ ssh_username }}'
+  when: >
+    ssh_default_private_key is defined and
+    ssh_default_private_key | length > 0 and
+    ssh_default_public_key is defined and
+    ssh_default_public_key | length > 0
 
 - name: set authorized keys taken from variables
   authorized_key:

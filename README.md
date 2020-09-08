@@ -4,7 +4,7 @@
 
 Available variables are listed below.
 
-	ssh_private_key_path: id_rsa
+	ssh_default_private_key: id_rsa
     ssh_public_key_path: id_rsa.pub
     ssh_manual_public_keys:
     ssh_gitlab_usernames:

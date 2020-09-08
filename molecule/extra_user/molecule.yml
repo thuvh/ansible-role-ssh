@@ -17,6 +17,8 @@ platforms:
     pre_build_image: true
 provisioner:
   name: ansible
+  env:
+    SSH_DEFAULT_PRIVATE_KEY: ${MOLECULE_SSH_DEFAULT_PRIVATE_KEY:-""}
+    SSH_DEFAULT_PUBLIC_KEY: ${MOLECULE_SSH_DEFAULT_PUBLIC_KEY:-""}
   playbooks:
-    create: ../create.yml
     converge: ${MOLECULE_PLAYBOOK:-converge.yml}
