@@ -115,3 +115,4 @@
     exclusive: "yes"
   become: true
   become_user: '{{ ssh_username }}'
+  when: ssh_authorized_keys | length > 0
