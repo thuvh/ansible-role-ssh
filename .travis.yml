@@ -10,24 +10,19 @@ env:
     - MOLECULE_DISTRO: fedora27
     - MOLECULE_DISTRO: ubuntu1804
 
-before_install:
-  - openssl aes-256-cbc -K $encrypted_4a251a58c763_key -iv $encrypted_4a251a58c763_iv -in id_rsa_env.enc -out id_rsa_env -d
-
 install:
   # Install test dependencies.
   - pip install molecule yamllint ansible-lint docker
 
 before_script:
   # Use actual Ansible Galaxy role name for the project directory.
-  - source id_rsa_env
-  - echo "$MOLECULE_SSH_DEFAULT_PRIVATE_KEY"
   - cd ../
   - mv ansible-role-$ROLE_NAME thuvh.$ROLE_NAME
   - cd thuvh.$ROLE_NAME
 
 script:
   # Run tests.
-  - molecule test
+  - molecule test --parallel --all
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
