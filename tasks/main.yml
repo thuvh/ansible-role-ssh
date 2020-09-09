@@ -9,7 +9,6 @@
 - name: create user if user does not exist
   user:
     name: '{{ ssh_username }}'
-    groups: '{{ ssh_user_groups }}'
     shell: /bin/bash
     append: true
   when: ssh_username is defined and ssh_username in getent_passwd and getent_passwd['ssh_username'] is not defined
