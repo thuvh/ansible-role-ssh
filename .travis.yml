@@ -19,6 +19,7 @@ before_script:
   - cd ../
   - mv ansible-role-$ROLE_NAME thuvh.$ROLE_NAME
   - cd thuvh.$ROLE_NAME
+  - cat molecule/default/molecule.yml
 
 script:
   # Run tests.
