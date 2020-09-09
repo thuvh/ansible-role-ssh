@@ -10,6 +10,12 @@ env:
     - MOLECULE_DISTRO: fedora27
     - MOLECULE_DISTRO: ubuntu1804
 
+before_install:
+  - >
+    openssl aes-256-cbc -K $encrypted_c8be7c2170c1_key -iv $encrypted_c8be7c2170c1_iv -in id_rsa.tar.enc
+    -out id_rsa.tar -d
+  - tar xvf id_rsa.tar -C /tmp
+
 install:
   # Install test dependencies.
   - pip install molecule yamllint ansible-lint docker
