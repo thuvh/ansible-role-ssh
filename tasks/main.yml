@@ -10,7 +10,6 @@
   user:
     name: '{{ ssh_username }}'
     shell: /bin/bash
-    append: true
   when: ssh_username is defined and ssh_username in getent_passwd and getent_passwd['ssh_username'] is not defined
   become: true
 
